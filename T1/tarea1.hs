@@ -61,3 +61,31 @@ gd alpha h ss = unfoldr f (0, h, cost h ss')
 -- getHypo = second . last . (gd alpha guess) . getSamples
 -- 
 -- main = interact (\s -> ((show(theta (getHypo s) sr))))
+
+data Filesystem a = File a | Directory a [ Filesystem a ]
+
+data Breadcrumbs a = WentDown a  [Filesystem a] Breadcrumbs a
+                   | WentLeft   ([Filesystem a], [Filesystem a]) Breadcrumbs a
+                   | WentRight  ([Filesystem a], [Filesystem a]) Breadcrumbs a
+                   | EmptyBreadCrumb
+
+type Zipper a = ( Filesystem a , Breadcrumbs a )
+
+focus :: Filesystem a -> Zipper a
+focus fs = (fs, EmptyBreadCrumb)
+
+goDown :: Zipper a -> Maybe Zipper a
+goDown (Directory y x:xs, r) = Just (x, WentDown y xs r)
+goDown _                     = Nothing
+
+goRight :: Zipper a -> Maybe Zipper a
+goRight (fd, WentDown z y:ys r)      = Just (y, WentRight ([fd]   , ys) WentDown z y:ys r)
+goRight (fd, WentRight (ys, z:zs) r) = Just (z, WentRight (fd : ys, zs) WentRight (ys, z:zs) r))
+goRight (fd, WentLeft  (ys, z:zs) r) = Just (z, WentRight (fd : ys, zs) WentLeft  (ys, z:zs) r))
+goRight _                            = Nothing
+
+
+goLeft :: Zipper a -> Maybe Zipper a
+goLeft (fd, WentRight (y:ys, zs r)) = Just (y, WentLeft (ys, fd : zs) WentRight (y:ys, zs r))
+goLeft (fd, WentLeft  (y:ys, zs r)) = Just (y, WentLeft (ys, fd : zs) WentLeft  (y:ys, zs r))
+goLeft _                            = Nothing
