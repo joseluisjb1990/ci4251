@@ -62,6 +62,16 @@ gd alpha h ss = unfoldr f (0, h, cost h ss')
 -- 
 -- main = interact (\s -> ((show(theta (getHypo s) sr))))
 
+newtype Max a = Max { getMax :: Maybe a }
+          deriving (Show)
+
+instance Ord a => Monoid (Max a) where
+  mempty                                  = Max Nothing
+  mappend (Max (Just n1)) (Max (Just n2)) = Max $ Just $ max n1 n2
+  mappend (Max (Nothing)) (Max (Just n2)) = Max $ Just $ n2
+  mappend (Max (Just n1)) (Max (Nothing)) = Max $ Just $ n1
+  mappend _ _                             = Max Nothing
+
 data Filesystem a = File a | Directory a [ Filesystem a ]
 
 data Breadcrumbs a = WentDown a  [Filesystem a]                (Breadcrumbs a)
