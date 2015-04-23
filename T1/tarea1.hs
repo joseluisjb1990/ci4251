@@ -99,8 +99,8 @@ goRight _                           = Nothing
 
 
 goLeft :: Zipper a -> Maybe (Zipper a)
-goLeft (fd, WentRight (y:ys) zs r) = Just (y, (WentLeft ys (fd:zs)) (WentRight (y:ys) zs r))
-goLeft (fd, WentLeft  (y:ys) zs r) = Just (y, (WentLeft ys (fd:zs)) (WentLeft  (y:ys) zs r))
+goLeft (fd, WentRight yys@(y:ys) zs r) = Just (y, (WentLeft ys (fd:zs)) (WentRight yys zs r))
+goLeft (fd, WentLeft  yys@(y:ys) zs r) = Just (y, (WentLeft ys (fd:zs)) (WentLeft  yys zs r))
 goLeft _                           = Nothing
 
 goBack :: Zipper a -> Maybe (Zipper a)
@@ -111,7 +111,14 @@ goBack _                           = Nothing
 
 tothetop :: Zipper a -> Zipper a
 tothetop (t, EmptyBreadCrumb) = (t, EmptyBreadCrumb)
-tothetop z             = tothetop $ fromJust $ goBack $ z
+tothetop z                    = tothetop $ fromJust $ goBack $ z
+
+defocus :: Zipper a -> Filesystem a
+defocus (fs, _) = fs
+
+modify :: (a -> a) -> Zipper a -> Zipper a
+modify f (File x, bs)         = (File (f x), bs)
+modify f (Directory x xs, bs) = (Directory (f x) xs, bs)
 
 f1 = File 1
 f2 = File 4
