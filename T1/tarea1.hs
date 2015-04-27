@@ -26,17 +26,20 @@ veryClose :: Double -> Double -> Bool
 veryClose v0 v1 = abs (v0 - v1) <= epsilon
 
 addOnes :: [Sample Double] -> [Sample Double]
-addOnes = map (\s -> Sample (1:(x s)) (y s))
+addOnes = map f
+          where f s = Sample (1:(x s)) (y s)
 
 theta :: Hypothesis Double -> Sample Double -> Double
-theta h s  = sum $ map (\(h', s') -> h' * s') (zip (c h) (x s)) 
+theta h s = foldl' f 0 (zip (c h) (x s)) 
+            where
+              f acc (h, s) = acc + h * s
 
 cost :: Hypothesis Double -> [Sample Double] -> Double
 cost h ss = let res = foldl' g (0.0, 0) l
               in f res
             where f (t, m)    = t / (2 * m)
                   g (t, m) t' = (t + t', m + 1)
-                  l           =  map f' ss
+                  l           = map f' ss
                   f' s        = ((theta h s) - (y s)) ^ 2
 
 descend :: Double -> Hypothesis Double -> [Sample Double] -> Hypothesis Double
@@ -101,7 +104,7 @@ goRight _                           = Nothing
 goLeft :: Zipper a -> Maybe (Zipper a)
 goLeft (fd, WentRight yys@(y:ys) zs r) = Just (y, (WentLeft ys (fd:zs)) (WentRight yys zs r))
 goLeft (fd, WentLeft  yys@(y:ys) zs r) = Just (y, (WentLeft ys (fd:zs)) (WentLeft  yys zs r))
-goLeft _                           = Nothing
+goLeft _                               = Nothing
 
 goBack :: Zipper a -> Maybe (Zipper a)
 goBack (_, WentRight (y:yz) zs lb) = Just (y, lb)
