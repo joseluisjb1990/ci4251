@@ -118,14 +118,19 @@ comparamos con el epsilon. Si la diferencia es menor o igual, entonces son epsil
 
 \subsection{Congruencia dimensional}
 
+Para addOnes utilizamos la funcion map para sustituir cada una de las muestras por su version con un 1 en la primera posicion.
+
 \begin{lstlisting}
 
 > addOnes :: [Sample Double] -> [Sample Double]
-> addOnes = map (\s -> Sample (1:(x s)) (y s))
+> addOnes = map f
+>           where f s = Sample (1:(x s)) (y s)
 
 \end{lstlisting}
 
 \subsection{Evaluando Hipótesis}
+
+Para el producto punto entre los dos vectores usamos la funcion zip para unir ambos valores que deseamos multiplicar. Posteriormente multiplicamos y sumamos el total utilzando un foldl.
 
 \begin{lstlisting}
 
@@ -136,19 +141,21 @@ comparamos con el epsilon. Si la diferencia es menor o igual, entonces son epsil
 
 \end{lstlisting}
 
+Para la función cost usaremos un fold cuyo auxiliar g se encarga de calcular y acumular los valores individuales de la sumatoria $$ J(\theta) = \frac{1}{2m} \sum_{i=1}^{m}{(h_\theta(x^{(i)}) - y^{(i)})^2} $$ apoyandose en la función theta. Para esto utiliza una tupla como acumulador en la cual la primera componente es la sumatoria acumulada y la segunda es la cantidad de valores que se han incluido en la sumatoria. Al final se aplica la función f, la cual calcula la división final.
+
 \begin{lstlisting}
 
 > cost :: Hypothesis Double -> [Sample Double] -> Double
-> cost h ss = let res = foldl' g (0.0, 0) l
+> cost h ss = let res = foldl' g (0.0, 0) ss
 >             in f res
 >             where f (t, m)    = t / (2 * m)
->                   g (t, m) t' = (t + t', m + 1)
->                   l           =  map f' ss
->                   f' s        = ((theta h s) - (y s)) ^ 2
+>                   g (t, m) s  = (t + ((theta h s) - (y s)) ^ 2, m + 1)
 
 \end{lstlisting}
 
 \subsection{Bajando por el gradiente}
+
+Para la función descend utilizaremos dos foldl anidados. El foldl general recorre la hipótesis, usando una tupla como acumulador la cual mantiene una lista y un número entero. La lista se utiliza para acumular los valores pertenecientes a la nueva hipótesis mientras que el segundo valor acumula la cantidad de valores en la hipótesis. Para calcular los nuevos valores, se utiliza un nuevo fold que trabaja sobre la lista de muestras aplcando la fórmula.
 
 \begin{lstlisting}
 

@@ -30,17 +30,15 @@ addOnes = map f
           where f s = Sample (1:(x s)) (y s)
 
 theta :: Hypothesis Double -> Sample Double -> Double
-theta h s = foldl' f 0 (zip (c h) (x s)) 
+theta h s = foldl' f 0 (zip (c h) (x s))
             where
               f acc (h, s) = acc + h * s
 
 cost :: Hypothesis Double -> [Sample Double] -> Double
-cost h ss = let res = foldl' g (0.0, 0) l
-              in f res
+cost h ss = let res = foldl' g (0.0, 0) ss
+            in f res
             where f (t, m)    = t / (2 * m)
-                  g (t, m) t' = (t + t', m + 1)
-                  l           = map f' ss
-                  f' s        = ((theta h s) - (y s)) ^ 2
+                  g (t, m) s  = (t + ((theta h s) - (y s)) ^ 2, m + 1)
 
 descend :: Double -> Hypothesis Double -> [Sample Double] -> Hypothesis Double
 descend alpha h ss = Hypothesis $ reverse $ fst $ foldl' (\(t, m) hj -> ((hj - g (f m)):t, m + 1)) ([], 0) (c h)
@@ -55,16 +53,16 @@ gd alpha h ss = unfoldr f (0, h, cost h ss')
                                        let c'' = cost h'' ss' in 
                                          if veryClose c'' c' then Nothing else Just ((n, h', c'), (n+1, h'', c''))
 
--- getSamples :: String -> [Sample Double]
--- getSamples s = read s
--- 
--- second (_, h, _) = h
--- 
--- sr = Sample { x = [1.0, -0.44127, -0.22368], y = undefined }
--- 
--- getHypo = second . last . (gd alpha guess) . getSamples
--- 
--- main = interact (\s -> ((show(theta (getHypo s) sr))))
+getSamples :: String -> [Sample Double]
+getSamples s = read s
+ 
+second (_, h, _) = h
+ 
+sr = Sample { x = [1.0, -0.44127, -0.22368], y = undefined }
+ 
+getHypo = second . last . (gd alpha guess) . getSamples
+
+main = interact (\s -> ((show(theta (getHypo s) sr))))
 
 newtype Max a = Max { getMax :: Maybe a }
           deriving (Show)
