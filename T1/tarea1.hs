@@ -41,17 +41,18 @@ cost h ss = let res = foldl' g (0.0, 0) ss
                   g (t, m) s  = (t + ((theta h s) - (y s)) ^ 2, m + 1)
 
 descend :: Double -> Hypothesis Double -> [Sample Double] -> Hypothesis Double
-descend alpha h ss = Hypothesis $ reverse $ fst $ foldl' (\(t, m) hj -> ((hj - g (f m)):t, m + 1)) ([], 0) (c h)
+descend alpha h ss = Hypothesis $ reverse $ fst $ foldl' k ([], 0) (c h)
                      where f j            = foldl' (f' j) (0.0, 0) ss
                            f' j (t, m) s  = (t + (((theta h s) - (y s)) * ((x s) !! j)), m + 1)
                            g (t, m)       = t * alpha / m
+                           k (t, m) hj    = ((hj - g (f m)):t, m + 1)
 
 gd :: Double -> Hypothesis Double -> [Sample Double] -> [(Integer, Hypothesis Double, Double)]
 gd alpha h ss = unfoldr f (0, h, cost h ss') 
                 where ss'          = addOnes ss
-                      f (n, h', c') = let h'' = descend alpha h' ss' in 
-                                       let c'' = cost h'' ss' in 
-                                         if veryClose c'' c' then Nothing else Just ((n, h', c'), (n+1, h'', c''))
+                      f (n, h', c') = let h'' = descend alpha h' ss' 
+                                          c'' = cost h'' ss' in 
+                                          if veryClose c'' c' then Nothing else Just ((n, h', c'), (n+1, h'', c''))
 
 getSamples :: String -> [Sample Double]
 getSamples s = read s
