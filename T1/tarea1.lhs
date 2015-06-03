@@ -47,11 +47,11 @@
 
 \title{CI4251 - Programación Funcional Avanzada \\ Tarea 1}
 
-\author{Jose Luis Jimenez\\
+\author{José Luis Jiménez\\
 10-10839\\
 \href{mailto:jljb1990@gmail.com}{<jljb1990@gmail.com>}}
 
-\date{Abril 30, 2015}
+\date{Mayo 1, 2015}
 
 \maketitle
 
@@ -155,12 +155,12 @@ Al final se aplica la función f, la cual calcula la división final.
 
 \subsection{Bajando por el gradiente}
 
-Para la función descend utilizaremos dos foldl anidados. El fold general recorre la hipótesis, usando una
+Para la función descend utilizaremos dos fold anidados. El fold general recorre la hipótesis, usando una
 tupla como acumulador la cual mantiene una lista y un número entero. La lista es utilizada para acumular
 los valores pertenecientes a la nueva hipótesis mientras que el segundo valor acumula la cantidad de valores en la hipótesis.
 Para calcular las nuevas componentes de la hipótesis, con un fold se recorre la lista de muestras aplicando la fórmula
-$$\sum_{i=1}^m{(h_\theta(x^{(i)})-y^{(i)})x_j^{(i)}}$$. Éste fold usa como acumulador una tupla con un número en punto flotante y otro
-entero, el primero es usado para acumular los valores parciales de la sumatoria y entero para contar la cantidad de muestras.
+$$\sum_{i=1}^m{(h_\theta(x^{(i)})-y^{(i)})x_j^{(i)}}$$ Éste fold usa como acumulador una tupla con un número en punto flotante y un
+entero. El primero es usado para acumular los valores parciales de la sumatoria y el segundo para contar la cantidad de muestras.
 
 \begin{lstlisting}
 
@@ -176,7 +176,7 @@ entero, el primero es usado para acumular los valores parciales de la sumatoria 
 
 \end{lstlisting}
 
-Para la función \emph{gd} utilizaremos un unfold que nos permitirá acumular las hipótesis mejoradas y el costo de cada una de estas.
+Para la función \emph{gd} utilizaremos un unfold que nos permite acumular las hipótesis mejoradas y el costo de cada una de estas.
 
 \begin{lstlisting}
 
@@ -220,9 +220,9 @@ Para la función \emph{gd} utilizaremos un unfold que nos permitirá acumular la
 \end{lstlisting}
 Para la definición de \emph{Breadcrumbs} tomamos en cuenta todas las direcciones de movimiento. El constructor \emph{WD} representa bajar un nivel
 dentro del árbol. Los constructor \emph{WL} representan el movimiento de izquierda a derecha, mientras que el constructor \emph{WR}
-representa el de derecha a izquierda en el mismo nivel del árbol. Para ambos casos mantenemos dos listas, una para representar
-todos los nodos en órden a los que debemos movernos en caso de seguir adelante y otra para el caso en que deseamos devolvernos.
-Para mantener el camino recorrido cada constructor es recursivo, ésto nos permitirá guardar los pasos dados dentro del árbol.  
+representa el de derecha a izquierda, ambos en el mismo nivel del árbol. Para ambos casos mantenemos dos listas, una para representar
+todos los nodos en órden a los que debemos movernos en caso de movernos hacia la derecha y otra para el caso en que deseamos movernos hacia la izquierda.
+Para mantener el camino recorrido cada constructor es recursivo, ésto nos permitirá guardar los pasos que hemos dado dentro del árbol.
 
 \begin{lstlisting}
 > data Breadcrumbs a =
@@ -257,9 +257,9 @@ devolvernos.
 > goRight (fd,WL ys a@(z:zs) r)=Just (z,WR (fd:ys) zs (WL ys a r))
 > goRight _                    =Nothing
 \end{lstlisting}
-Para el caso en que deseamos movernos hacia la izquierda también debemos considerar de donde venimos. Para los casos que nos acababamos de movernos
+Para el caso en que deseamos movernos hacia la izquierda también debemos considerar de donde venimos. Para los casos en que nos movemos
 lateralmente solo hace falta extraer el primer nodo de la lista de nodos anteriores y agregarlo como nodo actual, mientras agregamos el nodo en que estabamos
-de primero en la lista de nodos siguientes. El caso en que acabamos de bajar no hace falta considerarlo porque estaríamos en el primer nodo de nivel y no
+de primero en la lista de nodos siguientes. El caso en que acabamos de bajar no hace falta considerarlo porque estaríamos en el primer nodo del nivel y no
 podríamos movernos hacia la izquierda porque nos saldríamos de los límites del árbol.
 
 \begin{lstlisting}
@@ -285,7 +285,7 @@ Función que permite volver al estado inicial.
 > tothetop (t, EmptyBreadCrumb) = (t, EmptyBreadCrumb)
 > tothetop z                    = tothetop $ fromJust $ goBack $ z
 \end{lstlisting}
-Función que permite sustuir valores del árbol.
+Función que permite sustituir valores del árbol.
  
 \begin{lstlisting}
 > modify :: (a -> a) -> Zipper a -> Zipper a
