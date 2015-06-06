@@ -206,6 +206,12 @@ rafita n r e c buffer =
        atomically $ put buffer ("Rafita sirvio las empanadas")
        rafita n r e c buffer
 
+-- getRandoms :: Int -> [Int]
+-- getRandoms n = randomRs (1 * 1000000,7 * 1000000) (mkStdGen n)
+-- 
+-- randomDelayP = 
+--   do threadDelay $ head $ getRandoms randomSeed
+
 randomDelayP = 
   do r <- randomRIO (100000,700000)
      threadDelay r
